@@ -2,62 +2,64 @@ using UnityEngine;
 
 public class TreeResource : MonoBehaviour
 {
-    private enum TreeSize
-    {
-        Small,
-        Medium,
-        Large
-    }
-
-    [Header("Scale")]
-    [SerializeField] private float minScale = 0.8f;
-    [SerializeField] private float maxScale = 1.3f;
-
-    [Header("Wood Rewards")]
-    [SerializeField] private Vector2Int smallWoodRange = new Vector2Int(3, 4);
-    [SerializeField] private Vector2Int mediumWoodRange = new Vector2Int(5, 6);
-    [SerializeField] private Vector2Int largeWoodRange = new Vector2Int(7, 9);
-
-    private TreeSize treeSize;
+    private int currentHealth;
     private int woodReward;
+    private bool isInitialized;
+    private bool isChopped;
 
-    private void Start()
-    {
-        GenerateTree();
-    }
+    public int WoodReward => woodReward;
 
-    private void GenerateTree()
+    public event System.Action Chopped;
+
+    public void Initialize(int health, int woodAmount, float scale)
     {
-        float scale = Random.Range(minScale, maxScale);
+        currentHealth = health;
+        woodReward = woodAmount;
 
         transform.localScale = Vector3.one * scale;
-        transform.Rotate(0f, Random.Range(0f, 360f), 0f);
+        transform.rotation = Quaternion.Euler(
+            0f,
+            Random.Range(0f, 360f),
+            0f
+        );
 
-        if (scale < 0.95f)
+        isInitialized = true;
+
+        Debug.Log(
+            $"{name} initialized | Health: {currentHealth}, " +
+            $"Wood: {woodReward}, Scale: {scale:F2}"
+        );
+    }
+
+    public bool TakeDamage(int damage)
+    {
+        if (!isInitialized || isChopped)
+            return false;
+
+        currentHealth -= damage;
+
+        Debug.Log($"{name} hit! Health: {currentHealth}");
+
+        if (currentHealth <= 0)
         {
-            treeSize = TreeSize.Small;
-            woodReward = Random.Range(
-                smallWoodRange.x,
-                smallWoodRange.y + 1
-            );
-        }
-        else if (scale < 1.15f)
-        {
-            treeSize = TreeSize.Medium;
-            woodReward = Random.Range(
-                mediumWoodRange.x,
-                mediumWoodRange.y + 1
-            );
-        }
-        else
-        {
-            treeSize = TreeSize.Large;
-            woodReward = Random.Range(
-                largeWoodRange.x,
-                largeWoodRange.y + 1
-            );
+            ChopDown();
+            return true;
         }
 
-        Debug.Log($"{name}: {treeSize}, Scale: {scale:F2}, Wood: {woodReward}");
+        return false;
+    }
+
+    private void ChopDown()
+    {
+        if (isChopped)
+            return;
+
+        isChopped = true;
+
+        Debug.Log($"{name} chopped down! Wood: {woodReward}");
+
+        Chopped?.Invoke();
+
+        Destroy(gameObject);
     }
 }

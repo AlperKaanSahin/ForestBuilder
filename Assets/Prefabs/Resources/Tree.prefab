@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 5183238353643120038}
   - component: {fileID: 6619091961869530723}
   - component: {fileID: 5891805568956154745}
-  m_Layer: 0
+  - component: {fileID: -2859526281463871668}
+  m_Layer: 3
   m_Name: Tree
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -70,11 +71,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d82bb6dedd13e0643982613d6f62b174, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TreeResource
-  minScale: 0.8
-  maxScale: 1.3
-  smallWoodRange: {x: 3, y: 4}
-  mediumWoodRange: {x: 5, y: 6}
-  largeWoodRange: {x: 7, y: 9}
+--- !u!114 &-2859526281463871668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2579992818694228699}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d796771d2e908444bbe5a02461a7e6eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ResourceDropper
+  woodPiecePrefab: {fileID: 4807714256463416858, guid: e5320b9eddb59924c88214e7a3d5fa9a, type: 3}
+  spawnHeight: 1
+  spawnRadius: 0.6
+  horizontalForce: 2
+  upwardForce: 2
 --- !u!1 &5466196130137075780
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,7 +99,7 @@ GameObject:
   - component: {fileID: 7793024597352913373}
   - component: {fileID: 1655052357747098259}
   - component: {fileID: 7160069516739384333}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Leaves
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +189,7 @@ GameObject:
   - component: {fileID: 5650153897986045111}
   - component: {fileID: 6927909026209774423}
   - component: {fileID: 4184104159399407081}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Trunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}
