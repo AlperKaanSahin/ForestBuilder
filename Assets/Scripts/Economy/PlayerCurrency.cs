@@ -29,4 +29,20 @@ public class PlayerCurrency : MonoBehaviour
     {
         CoinsChanged?.Invoke(coins);
     }
+    public bool TrySpendCoins(int amount)
+    {
+        if (amount <= 0)
+            return false;
+
+        if (coins < amount)
+            return false;
+
+        coins -= amount;
+
+        NotifyCoinsChanged();
+
+        Debug.Log($"Spent {amount} coins. Remaining: {coins}");
+
+        return true;
+    }
 }

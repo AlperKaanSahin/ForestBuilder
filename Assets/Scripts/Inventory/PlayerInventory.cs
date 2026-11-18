@@ -34,6 +34,21 @@ public class PlayerInventory : MonoBehaviour
         return true;
     }
 
+    public bool TryRemoveWood(int amount)
+    {
+        if (amount <= 0)
+            return false;
+
+        if (currentWood < amount)
+            return false;
+
+        currentWood -= amount;
+
+        NotifyWoodChanged();
+
+        return true;
+    }
+
     public int TakeAllWood()
     {
         int woodToTake = currentWood;
@@ -43,6 +58,18 @@ public class PlayerInventory : MonoBehaviour
         NotifyWoodChanged();
 
         return woodToTake;
+    }
+
+    public void IncreaseCapacity(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        maxWood += amount;
+
+        NotifyWoodChanged();
+
+        Debug.Log($"Wood capacity increased to {maxWood}");
     }
 
     private void NotifyWoodChanged()

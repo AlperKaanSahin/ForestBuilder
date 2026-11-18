@@ -7,7 +7,12 @@ public class TreeSpawner : MonoBehaviour
     [SerializeField] private int treeCount = 15;
 
     [Header("Spawn Area")]
-    [SerializeField] private Vector2 spawnAreaSize = new Vector2(40f, 40f);
+    [SerializeField] private float spawnRadius = 20f;
+
+    [Header("Spawn Restrictions")]
+    [SerializeField] private LayerMask noSpawnLayer;
+    [SerializeField] private float noSpawnRadius = 1.5f;
+    [SerializeField] private int maxSpawnAttempts = 30;
 
     [Header("Scale")]
     [SerializeField] private float minScale = 0.8f;
@@ -33,7 +38,11 @@ public class TreeSpawner : MonoBehaviour
 
     private void SpawnTree()
     {
-        Vector3 spawnPosition = GetRandomSpawnPosition();
+        if (!TryGetSpawnPosition(out Vector3 spawnPosition))
+        {
+            Debug.LogWarning("Could not find a valid position for tree.");
+            return;
+        }
 
         TreeResource tree = Instantiate(
             treePrefab,
@@ -75,18 +84,52 @@ public class TreeSpawner : MonoBehaviour
         tree.Initialize(health, woodAmount, scale);
     }
 
+    private bool TryGetSpawnPosition(out Vector3 spawnPosition)
+    {
+        for (int attempt = 0; attempt < maxSpawnAttempts; attempt++)
+        {
+            Vector3 candidatePosition = GetRandomSpawnPosition();
+
+            bool blocked = Physics.CheckSphere(
+                candidatePosition,
+                noSpawnRadius,
+                noSpawnLayer
+            );
+
+            if (!blocked)
+            {
+                spawnPosition = candidatePosition;
+                return true;
+            }
+        }
+
+        spawnPosition = Vector3.zero;
+        return false;
+    }
+
     private Vector3 GetRandomSpawnPosition()
     {
-        float x = Random.Range(
-            -spawnAreaSize.x / 2f,
-            spawnAreaSize.x / 2f
-        );
+        float x;
+        float z;
 
-        float z = Random.Range(
-            -spawnAreaSize.y / 2f,
-            spawnAreaSize.y / 2f
-        );
+        do
+        {
+            x = Random.Range(-spawnRadius, spawnRadius);
+            z = Random.Range(-spawnRadius, spawnRadius);
+        }
+        while (!IsInsideHex(x, z));
 
         return transform.position + new Vector3(x, 0f, z);
+    }
+
+    private bool IsInsideHex(float x, float z)
+    {
+        float absoluteX = Mathf.Abs(x);
+        float absoluteZ = Mathf.Abs(z);
+
+        return absoluteX <= spawnRadius &&
+               absoluteZ <= Mathf.Sqrt(3f) * spawnRadius / 2f &&
+               Mathf.Sqrt(3f) * absoluteX + absoluteZ
+                   <= Mathf.Sqrt(3f) * spawnRadius;
     }
 }
