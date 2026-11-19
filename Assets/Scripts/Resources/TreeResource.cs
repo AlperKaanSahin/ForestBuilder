@@ -7,9 +7,17 @@ public class TreeResource : MonoBehaviour
     private bool isInitialized;
     private bool isChopped;
 
+
     public int WoodReward => woodReward;
 
     public event System.Action Chopped;
+
+    private TreeVisual treeVisual;
+
+    private void Awake()
+    {
+        treeVisual = GetComponent<TreeVisual>();
+    }
 
     public void Initialize(int health, int woodAmount, float scale)
     {
@@ -22,6 +30,8 @@ public class TreeResource : MonoBehaviour
             Random.Range(0f, 360f),
             0f
         );
+
+        treeVisual?.SelectRandomVariant();
 
         isInitialized = true;
 

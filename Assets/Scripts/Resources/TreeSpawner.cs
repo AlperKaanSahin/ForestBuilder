@@ -7,7 +7,12 @@ public class TreeSpawner : MonoBehaviour
     [SerializeField] private int treeCount = 15;
 
     [Header("Spawn Area")]
-    [SerializeField] private Vector2 spawnAreaSize = new Vector2(40f, 40f);
+    private ResourceCluster cluster;
+
+    [Header("Spawn Restrictions")]
+    [SerializeField] private LayerMask noSpawnLayer;
+    [SerializeField] private float noSpawnRadius = 1.5f;
+    [SerializeField] private int maxSpawnAttempts = 30;
 
     [Header("Scale")]
     [SerializeField] private float minScale = 0.8f;
@@ -30,10 +35,24 @@ public class TreeSpawner : MonoBehaviour
             SpawnTree();
         }
     }
+    private void Awake()
+    {
+        cluster = GetComponentInParent<ResourceCluster>();
+    }
 
     private void SpawnTree()
     {
-        Vector3 spawnPosition = GetRandomSpawnPosition();
+        if (cluster == null)
+        {
+            Debug.LogWarning($"{name}: ResourceCluster is missing.");
+            return;
+        }
+
+        if (!TryGetSpawnPosition(out Vector3 spawnPosition))
+        {
+            Debug.LogWarning("Could not find a valid position for tree.");
+            return;
+        }
 
         TreeResource tree = Instantiate(
             treePrefab,
@@ -75,18 +94,32 @@ public class TreeSpawner : MonoBehaviour
         tree.Initialize(health, woodAmount, scale);
     }
 
+    private bool TryGetSpawnPosition(out Vector3 spawnPosition)
+    {
+        for (int attempt = 0; attempt < maxSpawnAttempts; attempt++)
+        {
+            Vector3 candidatePosition = GetRandomSpawnPosition();
+
+            bool blocked = Physics.CheckSphere(
+                candidatePosition,
+                noSpawnRadius,
+                noSpawnLayer
+            );
+
+            if (!blocked)
+            {
+                spawnPosition = candidatePosition;
+                return true;
+            }
+        }
+
+        spawnPosition = Vector3.zero;
+        return false;
+    }
+
     private Vector3 GetRandomSpawnPosition()
     {
-        float x = Random.Range(
-            -spawnAreaSize.x / 2f,
-            spawnAreaSize.x / 2f
-        );
-
-        float z = Random.Range(
-            -spawnAreaSize.y / 2f,
-            spawnAreaSize.y / 2f
-        );
-
-        return transform.position + new Vector3(x, 0f, z);
+        return cluster.GetRandomPoint();
     }
+
 }

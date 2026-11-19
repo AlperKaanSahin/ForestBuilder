@@ -17,6 +17,9 @@ public class WoodPickup : MonoBehaviour
             if (!collider.TryGetComponent<WoodPiece>(out WoodPiece woodPiece))
                 continue;
 
+            if (!woodPiece.IsCollectible)
+                continue;
+
             if (playerInventory.TryAddWood(1))
             {
                 Destroy(woodPiece.gameObject);

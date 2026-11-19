@@ -7,10 +7,10 @@ public class ResourceDropper : MonoBehaviour
     [SerializeField] private Rigidbody woodPiecePrefab;
 
     [Header("Spawn Settings")]
-    [SerializeField] private float spawnHeight = 1f;
-    [SerializeField] private float spawnRadius = 0.6f;
-    [SerializeField] private float horizontalForce = 2f;
-    [SerializeField] private float upwardForce = 2f;
+    [SerializeField] private float spawnHeight = 0.7f;
+    [SerializeField] private float spawnRadius = 0.4f;
+    [SerializeField] private float horizontalForce = 1f;
+    [SerializeField] private float upwardForce = 1.5f;
 
     private TreeResource treeResource;
 
@@ -52,16 +52,13 @@ public class ResourceDropper : MonoBehaviour
                 Random.rotation
             );
 
-            Vector3 forceDirection = new Vector3(
-                randomOffset.x,
+            Vector3 force = new Vector3(
+                randomOffset.x * horizontalForce,
                 upwardForce,
-                randomOffset.y
-            ).normalized;
-
-            woodPiece.AddForce(
-                forceDirection * horizontalForce,
-                ForceMode.Impulse
+                randomOffset.y * horizontalForce
             );
+
+            woodPiece.AddForce(force, ForceMode.Impulse);
         }
     }
 }
