@@ -4,9 +4,13 @@ using UnityEngine;
 public class SellStackVisual : MonoBehaviour
 {
     [SerializeField] private GameObject woodVisualPrefab;
+    [Header("Stack Layout")]
+    [SerializeField] private int maxColumns = 10;
+    [SerializeField] private int maxRows = 10;
+
     [SerializeField] private float horizontalSpacing = 0.6f;
+    [SerializeField] private float depthSpacing = 0.5f;
     [SerializeField] private float verticalSpacing = 0.25f;
-    [SerializeField] private int woodPerRow = 2;
 
     private readonly List<GameObject> woodVisuals = new List<GameObject>();
 
@@ -14,22 +18,9 @@ public class SellStackVisual : MonoBehaviour
 
     public GameObject AddWood()
     {
-        int index = woodVisuals.Count;
-
-        int column = index % woodPerRow;
-        int row = index / woodPerRow;
-
-        float xOffset = (woodPerRow - 1) * horizontalSpacing / 2f;
-
         GameObject woodVisual = Instantiate(
             woodVisualPrefab,
             transform
-        );
-
-        woodVisual.transform.localPosition = new Vector3(
-            column * horizontalSpacing - xOffset,
-            row * verticalSpacing,
-            0f
         );
 
         woodVisual.transform.localRotation = Quaternion.Euler(
@@ -40,9 +31,52 @@ public class SellStackVisual : MonoBehaviour
 
         woodVisuals.Add(woodVisual);
 
+        RefreshLayout();
+
         return woodVisual;
     }
 
+    private void RefreshLayout()
+    {
+        int totalWood = woodVisuals.Count;
+
+        if (totalWood == 0)
+            return;
+
+        int maxWoodPerLayer = maxColumns * maxRows;
+
+        int woodOnBaseLayer = Mathf.Min(
+            totalWood,
+            maxWoodPerLayer
+        );
+
+        int columns = Mathf.Min(
+            maxColumns,
+            Mathf.CeilToInt(Mathf.Sqrt(woodOnBaseLayer))
+        );
+
+        int rows = Mathf.CeilToInt(
+            (float)woodOnBaseLayer / columns
+        );
+
+        float xOffset = (columns - 1) * horizontalSpacing / 2f;
+        float zOffset = (rows - 1) * depthSpacing / 2f;
+
+        for (int i = 0; i < woodVisuals.Count; i++)
+        {
+            int layer = i / maxWoodPerLayer;
+            int indexInLayer = i % maxWoodPerLayer;
+
+            int row = indexInLayer / columns;
+            int column = indexInLayer % columns;
+
+            woodVisuals[i].transform.localPosition = new Vector3(
+                column * horizontalSpacing - xOffset,
+                layer * verticalSpacing,
+                row * depthSpacing - zOffset
+            );
+        }
+    }
     public GameObject RemoveWood()
     {
         if (woodVisuals.Count == 0)

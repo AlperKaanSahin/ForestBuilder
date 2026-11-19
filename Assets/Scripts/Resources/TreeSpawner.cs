@@ -7,7 +7,7 @@ public class TreeSpawner : MonoBehaviour
     [SerializeField] private int treeCount = 15;
 
     [Header("Spawn Area")]
-    [SerializeField] private float spawnRadius = 20f;
+    private ResourceCluster cluster;
 
     [Header("Spawn Restrictions")]
     [SerializeField] private LayerMask noSpawnLayer;
@@ -35,9 +35,19 @@ public class TreeSpawner : MonoBehaviour
             SpawnTree();
         }
     }
+    private void Awake()
+    {
+        cluster = GetComponentInParent<ResourceCluster>();
+    }
 
     private void SpawnTree()
     {
+        if (cluster == null)
+        {
+            Debug.LogWarning($"{name}: ResourceCluster is missing.");
+            return;
+        }
+
         if (!TryGetSpawnPosition(out Vector3 spawnPosition))
         {
             Debug.LogWarning("Could not find a valid position for tree.");
@@ -109,27 +119,7 @@ public class TreeSpawner : MonoBehaviour
 
     private Vector3 GetRandomSpawnPosition()
     {
-        float x;
-        float z;
-
-        do
-        {
-            x = Random.Range(-spawnRadius, spawnRadius);
-            z = Random.Range(-spawnRadius, spawnRadius);
-        }
-        while (!IsInsideHex(x, z));
-
-        return transform.position + new Vector3(x, 0f, z);
+        return cluster.GetRandomPoint();
     }
 
-    private bool IsInsideHex(float x, float z)
-    {
-        float absoluteX = Mathf.Abs(x);
-        float absoluteZ = Mathf.Abs(z);
-
-        return absoluteX <= spawnRadius &&
-               absoluteZ <= Mathf.Sqrt(3f) * spawnRadius / 2f &&
-               Mathf.Sqrt(3f) * absoluteX + absoluteZ
-                   <= Mathf.Sqrt(3f) * spawnRadius;
-    }
 }
