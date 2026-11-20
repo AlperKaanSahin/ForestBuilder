@@ -1,63 +1,83 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerInventory : MonoBehaviour
 {
-    [SerializeField] private int maxWood = 20;
+    [SerializeField] private int maxCapacity = 20;
 
-    private int currentWood;
+    private readonly Dictionary<ResourceDefinition, int> resources =
+        new Dictionary<ResourceDefinition, int>();
 
-    public int CurrentWood => currentWood;
-    public int MaxWood => maxWood;
-    public bool IsFull => currentWood >= maxWood;
+    public int MaxCapacity => maxCapacity;
+    public int TotalAmount => GetTotalAmount();
+    public bool IsFull => TotalAmount >= maxCapacity;
 
-    public event System.Action<int, int> WoodChanged;
+    public event Action InventoryChanged;
 
     private void Start()
     {
-        NotifyWoodChanged();
+        NotifyInventoryChanged();
     }
 
-    public bool TryAddWood(int amount)
+    public bool TryAddResource(ResourceDefinition resource, int amount)
     {
-        if (amount <= 0)
+        if (resource == null || amount <= 0)
             return false;
 
-        if (currentWood + amount > maxWood)
+        if (TotalAmount + amount > maxCapacity)
             return false;
 
-        currentWood += amount;
+        if (resources.ContainsKey(resource))
+        {
+            resources[resource] += amount;
+        }
+        else
+        {
+            resources.Add(resource, amount);
+        }
 
-        NotifyWoodChanged();
+        NotifyInventoryChanged();
 
-        Debug.Log($"Wood: {currentWood} / {maxWood}");
+        Debug.Log(
+            $"{resource.DisplayName}: {resources[resource]} | " +
+            $"Inventory: {TotalAmount}/{maxCapacity}"
+        );
 
         return true;
     }
 
-    public bool TryRemoveWood(int amount)
+    public bool TryRemoveResource(ResourceDefinition resource, int amount)
     {
-        if (amount <= 0)
+        if (resource == null || amount <= 0)
             return false;
 
-        if (currentWood < amount)
+        if (!resources.TryGetValue(resource, out int currentAmount))
             return false;
 
-        currentWood -= amount;
+        if (currentAmount < amount)
+            return false;
 
-        NotifyWoodChanged();
+        currentAmount -= amount;
+
+        if (currentAmount == 0)
+            resources.Remove(resource);
+        else
+            resources[resource] = currentAmount;
+
+        NotifyInventoryChanged();
 
         return true;
     }
 
-    public int TakeAllWood()
+    public int GetAmount(ResourceDefinition resource)
     {
-        int woodToTake = currentWood;
+        if (resource == null)
+            return 0;
 
-        currentWood = 0;
-
-        NotifyWoodChanged();
-
-        return woodToTake;
+        return resources.TryGetValue(resource, out int amount)
+            ? amount
+            : 0;
     }
 
     public void IncreaseCapacity(int amount)
@@ -65,15 +85,25 @@ public class PlayerInventory : MonoBehaviour
         if (amount <= 0)
             return;
 
-        maxWood += amount;
+        maxCapacity += amount;
 
-        NotifyWoodChanged();
+        NotifyInventoryChanged();
 
-        Debug.Log($"Wood capacity increased to {maxWood}");
+       
     }
 
-    private void NotifyWoodChanged()
+    private int GetTotalAmount()
     {
-        WoodChanged?.Invoke(currentWood, maxWood);
+        int total = 0;
+
+        foreach (int amount in resources.Values)
+            total += amount;
+
+        return total;
+    }
+
+    private void NotifyInventoryChanged()
+    {
+        InventoryChanged?.Invoke();
     }
 }

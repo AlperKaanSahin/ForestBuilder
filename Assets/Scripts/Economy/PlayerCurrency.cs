@@ -22,7 +22,7 @@ public class PlayerCurrency : MonoBehaviour
 
         NotifyCoinsChanged();
 
-        Debug.Log($"Coins: {coins}");
+      
     }
 
     private void NotifyCoinsChanged()
@@ -41,7 +41,6 @@ public class PlayerCurrency : MonoBehaviour
 
         NotifyCoinsChanged();
 
-        Debug.Log($"Spent {amount} coins. Remaining: {coins}");
 
         return true;
     }

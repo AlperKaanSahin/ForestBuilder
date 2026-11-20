@@ -73,6 +73,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d82bb6dedd13e0643982613d6f62b174, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TreeResource
+  resource: {fileID: 11400000, guid: 004f6b97c8e674647a2f975bc2742e77, type: 2}
 --- !u!114 &-2859526281463871668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,7 +86,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d796771d2e908444bbe5a02461a7e6eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ResourceDropper
-  woodPiecePrefab: {fileID: 4807714256463416858, guid: e5320b9eddb59924c88214e7a3d5fa9a, type: 3}
+  resourcePiecePrefab: {fileID: 4807714256463416858, guid: e5320b9eddb59924c88214e7a3d5fa9a, type: 3}
+  dropCount: 1
   spawnHeight: 1
   spawnRadius: 0.6
   horizontalForce: 0.35

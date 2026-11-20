@@ -11,13 +11,13 @@ public class SellZone : MonoBehaviour
     [SerializeField] private SellStackVisual sellStackVisual;
     [SerializeField] private CarryStackVisual carryStackVisual;
     [SerializeField] private SellCoinEffect sellCoinEffect;
+    [SerializeField] private ResourceValueCalculator resourceValueCalculator;
 
     [Header("Transfer")]
     [SerializeField] private float transferInterval = 0.15f;
     [SerializeField] private float transferDuration = 0.25f;
 
     [Header("Selling")]
-    [SerializeField] private int coinPerWood = 1;
     [SerializeField] private float startingSellInterval = 0.20f;
     [SerializeField] private float minimumSellInterval = 0.06f;
     [SerializeField] private float sellAcceleration = 0.02f;
@@ -25,7 +25,6 @@ public class SellZone : MonoBehaviour
     private BoxCollider zoneCollider;
 
     private bool playerInside;
-    private int woodInSellStack;
 
     private Coroutine transferCoroutine;
     private Coroutine sellCoroutine;
@@ -65,7 +64,7 @@ public class SellZone : MonoBehaviour
         if (transferCoroutine != null)
             return;
 
-        transferCoroutine = StartCoroutine(TransferWood());
+        transferCoroutine = StartCoroutine(TransferResources());
     }
 
     private void StopTransfer()
@@ -77,41 +76,70 @@ public class SellZone : MonoBehaviour
         transferCoroutine = null;
     }
 
-    private IEnumerator TransferWood()
+    private IEnumerator TransferResources()
     {
-        while (playerInside && playerInventory.CurrentWood > 0)
+        while (playerInside && carryStackVisual.Count > 0)
         {
-            GameObject woodVisual = carryStackVisual.TakeLastVisual();
+            CarryStackItem carryItem =
+                carryStackVisual.TakeLastItem();
 
-            if (playerInventory.TryRemoveWood(1))
+            if (carryItem == null)
+                break;
+
+            if (playerInventory.TryRemoveResource(
+                    carryItem.Resource,
+                    1))
             {
-                if (woodVisual != null)
+                if (carryItem.Visual != null)
                 {
                     yield return StartCoroutine(
-                        MoveWoodToSellStack(woodVisual)
+                        MoveResourceToSellStack(
+                            carryItem.Visual
+                        )
                     );
                 }
 
-                woodInSellStack++;
-                sellStackVisual.AddWood();
+                sellStackVisual.AddResource(
+                    carryItem.Resource
+                );
 
                 StartSelling();
             }
+            else
+            {
+                Debug.LogWarning(
+                    $"Could not remove " +
+                    $"{carryItem.Resource.DisplayName} " +
+                    $"from inventory."
+                );
 
-            yield return new WaitForSeconds(transferInterval);
+                break;
+            }
+
+            yield return new WaitForSeconds(
+                transferInterval
+            );
         }
 
         transferCoroutine = null;
     }
-    private IEnumerator MoveWoodToSellStack(GameObject woodVisual)
+
+    private IEnumerator MoveResourceToSellStack(
+        GameObject resourceVisual)
     {
-        Vector3 startPosition = woodVisual.transform.position;
-        Vector3 targetPosition = sellStackVisual.transform.position;
+        Vector3 startPosition =
+            resourceVisual.transform.position;
 
-        Quaternion startRotation = woodVisual.transform.rotation;
-        Quaternion targetRotation = Quaternion.Euler(90f, 0f, 0f);
+        Vector3 targetPosition =
+            sellStackVisual.transform.position;
 
-        woodVisual.transform.SetParent(null);
+        Quaternion startRotation =
+            resourceVisual.transform.rotation;
+
+        Quaternion targetRotation =
+            Quaternion.Euler(90f, 0f, 0f);
+
+        resourceVisual.transform.SetParent(null);
 
         float elapsedTime = 0f;
 
@@ -125,22 +153,24 @@ public class SellZone : MonoBehaviour
 
             t = Mathf.SmoothStep(0f, 1f, t);
 
-            woodVisual.transform.position = Vector3.Lerp(
-                startPosition,
-                targetPosition,
-                t
-            );
+            resourceVisual.transform.position =
+                Vector3.Lerp(
+                    startPosition,
+                    targetPosition,
+                    t
+                );
 
-            woodVisual.transform.rotation = Quaternion.Slerp(
-                startRotation,
-                targetRotation,
-                t
-            );
+            resourceVisual.transform.rotation =
+                Quaternion.Slerp(
+                    startRotation,
+                    targetRotation,
+                    t
+                );
 
             yield return null;
         }
 
-        Destroy(woodVisual);
+        Destroy(resourceVisual);
     }
 
     private void StartSelling()
@@ -148,37 +178,54 @@ public class SellZone : MonoBehaviour
         if (sellCoroutine != null)
             return;
 
-        sellCoroutine = StartCoroutine(SellWood());
+        sellCoroutine = StartCoroutine(
+            SellResources()
+        );
     }
 
-    private IEnumerator SellWood()
+    private IEnumerator SellResources()
     {
-        float currentSellInterval = startingSellInterval;
+        float currentSellInterval =
+            startingSellInterval;
 
-        while (woodInSellStack > 0)
+        while (sellStackVisual.Count > 0)
         {
-            yield return new WaitForSeconds(currentSellInterval);
+            yield return new WaitForSeconds(
+                currentSellInterval
+            );
 
-            GameObject woodVisual = sellStackVisual.RemoveWood();
+            SellStackItem sellItem =
+                sellStackVisual.RemoveLastItem();
 
-            Vector3 coinStartPosition = sellStackVisual.transform.position;
+            if (sellItem == null)
+                break;
 
-            if (woodVisual != null)
+            Vector3 coinStartPosition =
+                sellStackVisual.transform.position;
+
+            if (sellItem.Visual != null)
             {
-                coinStartPosition = woodVisual.transform.position;
-                Destroy(woodVisual);
-            }
+                coinStartPosition =
+                    sellItem.Visual.transform.position;
 
-            woodInSellStack--;
+                Destroy(sellItem.Visual);
+            }
 
             if (sellCoinEffect != null)
             {
                 yield return StartCoroutine(
-                    sellCoinEffect.PlayCoinEffect(coinStartPosition)
+                    sellCoinEffect.PlayCoinEffect(
+                        coinStartPosition
+                    )
                 );
             }
 
-            playerCurrency.AddCoins(coinPerWood);
+            int sellValue =
+                resourceValueCalculator.GetSellValue(
+                    sellItem.Resource
+                );
+
+            playerCurrency.AddCoins(sellValue);
 
             currentSellInterval = Mathf.Max(
                 minimumSellInterval,

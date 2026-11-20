@@ -16,6 +16,10 @@ public class RandomVisualSelector : MonoBehaviour
         }
 
         int randomIndex = Random.Range(0, visualVariants.Length);
+        Debug.Log(
+    $"{name} selected visual: " +
+    $"{visualVariants[randomIndex].name}"
+);
 
         if (visualVariants[randomIndex] != null)
             visualVariants[randomIndex].SetActive(true);

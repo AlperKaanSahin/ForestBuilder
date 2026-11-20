@@ -3,18 +3,26 @@ using UnityEngine;
 
 public class CarryCapacityUpgradeUI : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private CarryCapacityUpgrade upgrade;
     [SerializeField] private PlayerInventory playerInventory;
-    [SerializeField] private TMP_Text upgradeText;
+
+    [Header("UI")]
+    [SerializeField] private TMP_Text infoText;
+    [SerializeField] private TMP_Text costText;
 
     private void Update()
     {
-        int currentCapacity = playerInventory.MaxWood;
-        int nextCapacity = currentCapacity + upgrade.CapacityIncrease;
+        infoText.text =
+            $"{playerInventory.MaxCapacity} → " +
+            $"{playerInventory.MaxCapacity + upgrade.CapacityIncrease}";
 
-        upgradeText.text =
-            $"CARRY CAPACITY\n" +
-            $"{currentCapacity} > {nextCapacity}\n" +
-            $"{upgrade.RemainingCost} COINS";
+        costText.text =
+            $"{upgrade.CurrentCost} Coins";
+    }
+
+    public void Purchase()
+    {
+        upgrade.TryPurchase();
     }
 }

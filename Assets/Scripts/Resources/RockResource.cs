@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class RockResource : MonoBehaviour
+public class RockResource : ResourceNode
 {
     private RandomVisualSelector visualSelector;
 
@@ -9,9 +9,18 @@ public class RockResource : MonoBehaviour
         visualSelector = GetComponent<RandomVisualSelector>();
     }
 
-    public void Initialize()
+    public void Initialize(int health, float scale)
     {
-        if (visualSelector != null)
-            visualSelector.SelectRandomVariant();
+        transform.localScale = Vector3.one * scale;
+        transform.rotation = Quaternion.Euler(
+            0f,
+            Random.Range(0f, 360f),
+            0f
+        );
+
+        visualSelector?.SelectRandomVariant();
+
+        InitializeNode(health);
+
     }
 }

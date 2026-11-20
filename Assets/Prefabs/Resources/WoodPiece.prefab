@@ -95,6 +95,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a70671749c4d76c4b8f286ad3c8d1530, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WoodPiece
+  resource: {fileID: 11400000, guid: 004f6b97c8e674647a2f975bc2742e77, type: 2}
+  amount: 1
 --- !u!1001 &5506607277623946740
 PrefabInstance:
   m_ObjectHideFlags: 0

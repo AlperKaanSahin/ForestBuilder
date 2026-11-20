@@ -10,6 +10,11 @@ public class RockSpawner : MonoBehaviour
     [SerializeField] private float minScale = 0.8f;
     [SerializeField] private float maxScale = 1.2f;
 
+    [Header("Stone Rewards")]
+    [SerializeField] private Vector2Int smallStoneRange = new Vector2Int(2, 3);
+    [SerializeField] private Vector2Int mediumStoneRange = new Vector2Int(3, 5);
+    [SerializeField] private Vector2Int largeStoneRange = new Vector2Int(5, 7);
+
     private ResourceCluster cluster;
 
     private void Awake()
@@ -26,13 +31,13 @@ public class RockSpawner : MonoBehaviour
     {
         if (cluster == null)
         {
-            Debug.LogWarning($"{name}: ResourceCluster is missing.");
+
             return;
         }
 
         if (rockPrefab == null)
         {
-            Debug.LogWarning($"{name}: Rock prefab is missing.");
+
             return;
         }
 
@@ -42,6 +47,7 @@ public class RockSpawner : MonoBehaviour
         }
     }
 
+
     private void SpawnRock()
     {
         Vector3 position = cluster.GetRandomPoint();
@@ -49,17 +55,48 @@ public class RockSpawner : MonoBehaviour
         RockResource rock = Instantiate(
             rockPrefab,
             position,
-            Quaternion.Euler(
-                0f,
-                Random.Range(0f, 360f),
-                0f
-            ),
+            Quaternion.identity,
             transform
         );
 
         float scale = Random.Range(minScale, maxScale);
-        rock.transform.localScale *= scale;
 
-        rock.Initialize();
+        int health;
+        int stoneAmount;
+
+        if (scale < 0.95f)
+        {
+            health = 4;
+            stoneAmount = Random.Range(
+                smallStoneRange.x,
+                smallStoneRange.y + 1
+            );
+        }
+        else if (scale < 1.1f)
+        {
+            health = 6;
+            stoneAmount = Random.Range(
+                mediumStoneRange.x,
+                mediumStoneRange.y + 1
+            );
+        }
+        else
+        {
+            health = 8;
+            stoneAmount = Random.Range(
+                largeStoneRange.x,
+                largeStoneRange.y + 1
+            );
+        }
+
+        rock.Initialize(health, scale);
+
+        ResourceDropper resourceDropper =
+            rock.GetComponent<ResourceDropper>();
+
+        if (resourceDropper != null)
+        {
+            resourceDropper.Initialize(stoneAmount);
+        }
     }
 }
