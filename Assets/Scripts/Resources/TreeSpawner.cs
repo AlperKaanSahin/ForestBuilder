@@ -44,13 +44,12 @@ public class TreeSpawner : MonoBehaviour
     {
         if (cluster == null)
         {
-            Debug.LogWarning($"{name}: ResourceCluster is missing.");
             return;
         }
 
         if (!TryGetSpawnPosition(out Vector3 spawnPosition))
         {
-            Debug.LogWarning("Could not find a valid position for tree.");
+
             return;
         }
 
@@ -91,7 +90,15 @@ public class TreeSpawner : MonoBehaviour
             );
         }
 
-        tree.Initialize(health, woodAmount, scale);
+        tree.Initialize(health, scale);
+
+        ResourceDropper resourceDropper =
+            tree.GetComponent<ResourceDropper>();
+
+        if (resourceDropper != null)
+        {
+            resourceDropper.Initialize(woodAmount);
+        }
     }
 
     private bool TryGetSpawnPosition(out Vector3 spawnPosition)

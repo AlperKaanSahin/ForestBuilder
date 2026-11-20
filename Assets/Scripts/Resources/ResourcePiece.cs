@@ -1,18 +1,23 @@
 using UnityEngine;
 
-public class WoodPiece : MonoBehaviour
+public class ResourcePiece : MonoBehaviour
 {
+    [SerializeField] private ResourceDefinition resource;
+    [SerializeField] private int amount = 1;
+
+    public ResourceDefinition Resource => resource;
+    public int Amount => amount;
     public bool IsCollectible { get; private set; }
 
     private void Awake()
     {
-        int woodLayer = LayerMask.NameToLayer("Wood");
+        int resourceLayer = LayerMask.NameToLayer("Wood");
 
-        if (woodLayer != -1)
+        if (resourceLayer != -1)
         {
             Physics.IgnoreLayerCollision(
-                woodLayer,
-                woodLayer,
+                resourceLayer,
+                resourceLayer,
                 true
             );
         }

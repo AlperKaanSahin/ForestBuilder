@@ -3,86 +3,52 @@ using UnityEngine;
 
 public class CarryStackVisual : MonoBehaviour
 {
-    [SerializeField] private PlayerInventory playerInventory;
-    [SerializeField] private GameObject woodVisualPrefab;
     [SerializeField] private float verticalSpacing = 0.25f;
 
-    private readonly List<GameObject> woodVisuals = new List<GameObject>();
+    private readonly List<CarryStackItem> items =
+        new List<CarryStackItem>();
 
-    private void OnEnable()
+    public int Count => items.Count;
+
+    public void AddResource(ResourceDefinition resource)
     {
-        playerInventory.WoodChanged += UpdateStack;
-    }
+        if (resource == null || resource.StackVisualPrefab == null)
+            return;
 
-    private void Start()
-    {
-        UpdateStack(
-            playerInventory.CurrentWood,
-            playerInventory.MaxWood
-        );
-    }
+        int index = items.Count;
 
-    private void OnDisable()
-    {
-        playerInventory.WoodChanged -= UpdateStack;
-    }
-
-    private void UpdateStack(int currentWood, int maxWood)
-    {
-        while (woodVisuals.Count < currentWood)
-        {
-            AddWoodVisual();
-        }
-
-        while (woodVisuals.Count > currentWood)
-        {
-            RemoveWoodVisual();
-        }
-    }
-
-    private void AddWoodVisual()
-    {
-        int index = woodVisuals.Count;
-
-        GameObject woodVisual = Instantiate(
-            woodVisualPrefab,
+        GameObject visual = Instantiate(
+            resource.StackVisualPrefab,
             transform
         );
 
-        woodVisual.transform.localPosition = new Vector3(
+        visual.transform.localPosition = new Vector3(
             0f,
             index * verticalSpacing,
             0f
         );
 
-        woodVisual.transform.localRotation = Quaternion.Euler(
+        visual.transform.localRotation = Quaternion.Euler(
             0f,
             0f,
             90f
         );
 
-        woodVisuals.Add(woodVisual);
+        items.Add(
+            new CarryStackItem(resource, visual)
+        );
     }
 
-    private void RemoveWoodVisual()
+    public CarryStackItem TakeLastItem()
     {
-        int lastIndex = woodVisuals.Count - 1;
-
-        GameObject woodVisual = woodVisuals[lastIndex];
-
-        woodVisuals.RemoveAt(lastIndex);
-        Destroy(woodVisual);
-    }
-    public GameObject TakeLastVisual()
-    {
-        if (woodVisuals.Count == 0)
+        if (items.Count == 0)
             return null;
 
-        int lastIndex = woodVisuals.Count - 1;
+        int lastIndex = items.Count - 1;
 
-        GameObject woodVisual = woodVisuals[lastIndex];
-        woodVisuals.RemoveAt(lastIndex);
+        CarryStackItem item = items[lastIndex];
+        items.RemoveAt(lastIndex);
 
-        return woodVisual;
+        return item;
     }
 }

@@ -1,64 +1,61 @@
 using UnityEngine;
 
-[RequireComponent(typeof(TreeResource))]
+[RequireComponent(typeof(ResourceNode))]
 public class ResourceDropper : MonoBehaviour
 {
     [Header("Drop")]
-    [SerializeField] private Rigidbody woodPiecePrefab;
+    [SerializeField] private Rigidbody resourcePiecePrefab;
+    [SerializeField] private int dropCount = 1;
 
     [Header("Spawn Settings")]
     [SerializeField] private float spawnHeight = 0.7f;
     [SerializeField] private float spawnRadius = 0.4f;
-    [SerializeField] private float horizontalForce = 1f;
-    [SerializeField] private float upwardForce = 1.5f;
-
-    private TreeResource treeResource;
+    private ResourceNode resourceNode;
 
     private void Awake()
     {
-        treeResource = GetComponent<TreeResource>();
+        resourceNode = GetComponent<ResourceNode>();
     }
 
     private void OnEnable()
     {
-        treeResource.Chopped += HandleTreeChopped;
+        resourceNode.Depleted += HandleResourceDepleted;
     }
 
     private void OnDisable()
     {
-        treeResource.Chopped -= HandleTreeChopped;
+        resourceNode.Depleted -= HandleResourceDepleted;
     }
 
-    private void HandleTreeChopped()
+    private void HandleResourceDepleted()
     {
-        DropWood(treeResource.WoodReward);
+        DropResource();
+    }
+    public void Initialize(int amount)
+    {
+        dropCount = Mathf.Max(1, amount);
     }
 
-    private void DropWood(int amount)
+    private void DropResource()
     {
-        for (int i = 0; i < amount; i++)
+        for (int i = 0; i < dropCount; i++)
         {
-            Vector2 randomOffset = Random.insideUnitCircle * spawnRadius;
+            Vector2 randomOffset =
+                Random.insideUnitCircle * spawnRadius;
 
-            Vector3 spawnPosition = transform.position + new Vector3(
-                randomOffset.x,
-                spawnHeight,
-                randomOffset.y
-            );
+            Vector3 spawnPosition =
+                transform.position +
+                new Vector3(
+                    randomOffset.x,
+                    spawnHeight,
+                    randomOffset.y
+                );
 
-            Rigidbody woodPiece = Instantiate(
-                woodPiecePrefab,
+            Instantiate(
+                resourcePiecePrefab,
                 spawnPosition,
                 Random.rotation
             );
-
-            Vector3 force = new Vector3(
-                randomOffset.x * horizontalForce,
-                upwardForce,
-                randomOffset.y * horizontalForce
-            );
-
-            woodPiece.AddForce(force, ForceMode.Impulse);
         }
     }
 }
