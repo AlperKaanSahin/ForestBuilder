@@ -6,6 +6,9 @@ public class ResourceHarvester : MonoBehaviour
     [SerializeField] private float detectionRadius = 4f;
     [SerializeField] private float harvestInterval = 0.5f;
     [SerializeField] private int damagePerHit = 1;
+
+    public int DamagePerHit => damagePerHit;
+
     [SerializeField] private ResourceUnlockSystem resourceUnlockSystem;
 
     private readonly List<ResourceNode> resourcesInRange =
@@ -40,6 +43,13 @@ public class ResourceHarvester : MonoBehaviour
         }
     }
 
+    public void IncreaseDamage(int amount)
+    {
+        if (amount <= 0)
+            return;
+
+        damagePerHit += amount;
+    }
     private void DetectResources()
     {
         resourcesInRange.Clear();
