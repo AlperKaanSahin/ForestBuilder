@@ -39,6 +39,16 @@ public class PlayerMovement : MonoBehaviour
         controller.Move(movement * Time.deltaTime);
     }
 
+    public float MoveSpeed => moveSpeed;
+
+    public void IncreaseMoveSpeed(float amount)
+    {
+        if (amount <= 0f)
+            return;
+
+        moveSpeed += amount;
+    }
+
     public void SetMovementInput(Vector2 input)
     {
         movementInput = input;

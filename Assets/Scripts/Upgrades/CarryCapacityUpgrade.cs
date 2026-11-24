@@ -1,35 +1,23 @@
 using UnityEngine;
 
-public class CarryCapacityUpgrade : MonoBehaviour
+public class CarryCapacityUpgrade : RepeatableUpgrade
 {
     [Header("References")]
     [SerializeField] private PlayerInventory playerInventory;
-    [SerializeField] private PlayerCurrency playerCurrency;
 
-    [Header("Upgrade")]
+    [Header("Carry Capacity")]
     [SerializeField] private int capacityIncrease = 5;
-    [SerializeField] private int startingCost = 10;
-    [SerializeField] private int costIncrease = 10;
 
-    private int currentCost;
-
-    public int CurrentCost => currentCost;
     public int CapacityIncrease => capacityIncrease;
 
-    private void Awake()
-    {
-        currentCost = startingCost;
-    }
+    public override string DisplayName => "Carry Capacity";
 
-    public bool TryPurchase()
-    {
-        if (!playerCurrency.TrySpendCoins(currentCost))
-            return false;
+    public override string ProgressText =>
+        $"{playerInventory.MaxCapacity} → " +
+        $"{playerInventory.MaxCapacity + capacityIncrease} Capacity";
 
+    protected override void ApplyUpgrade()
+    {
         playerInventory.IncreaseCapacity(capacityIncrease);
-
-        currentCost += costIncrease;
-
-        return true;
     }
 }
