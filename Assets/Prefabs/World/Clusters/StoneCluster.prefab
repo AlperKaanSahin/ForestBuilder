@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1251966406352829946}
   - component: {fileID: 5086671262748485652}
   m_Layer: 0
-  m_Name: RockCluster
+  m_Name: StoneCluster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

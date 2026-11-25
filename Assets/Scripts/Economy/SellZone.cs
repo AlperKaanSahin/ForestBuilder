@@ -34,6 +34,20 @@ public class SellZone : MonoBehaviour
         zoneCollider = GetComponent<BoxCollider>();
     }
 
+    public void Initialize(
+    Transform player,
+    PlayerInventory inventory,
+    PlayerCurrency currency,
+    CarryStackVisual carryVisual,
+    ResourceValueCalculator valueCalculator)
+    {
+        this.player = player;
+        playerInventory = inventory;
+        playerCurrency = currency;
+        carryStackVisual = carryVisual;
+        resourceValueCalculator = valueCalculator;
+    }
+
     private void Update()
     {
         if (player == null)

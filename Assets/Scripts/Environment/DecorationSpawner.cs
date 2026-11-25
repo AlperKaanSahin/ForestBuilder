@@ -14,8 +14,8 @@ public class DecorationSpawner : MonoBehaviour
     [SerializeField] private int rockCount = 6;
     [SerializeField] private int flowerCount = 8;
 
-    [Header("Spawn Area")]
-    [SerializeField] private float spawnRadius = 20f;
+    [Header("References")]
+    [SerializeField] private Region region;
 
     [Header("Spawn Restrictions")]
     [SerializeField] private LayerMask noSpawnLayer;
@@ -28,8 +28,6 @@ public class DecorationSpawner : MonoBehaviour
 
     private void Start()
     {
-        Debug.Log("DecorationSpawner START çalıştı");
-
         SpawnDecorations(grassPrefabs, grassCount);
         SpawnDecorations(bushPrefabs, bushCount);
         SpawnDecorations(rockPrefabs, rockCount);
@@ -68,9 +66,20 @@ public class DecorationSpawner : MonoBehaviour
     }
     private bool TryGetSpawnPosition(out Vector3 spawnPosition)
     {
+        if (region == null)
+        {
+            spawnPosition = Vector3.zero;
+            return false;
+        }
+
         for (int attempt = 0; attempt < maxSpawnAttempts; attempt++)
         {
-            Vector3 candidatePosition = GetRandomSpawnPosition();
+            if (!region.TryGetRandomPoint(
+                    noSpawnRadius,
+                    out Vector3 candidatePosition))
+            {
+                continue;
+            }
 
             bool blocked = Physics.CheckSphere(
                 candidatePosition,
@@ -89,29 +98,5 @@ public class DecorationSpawner : MonoBehaviour
         return false;
     }
 
-    private Vector3 GetRandomSpawnPosition()
-    {
-        float x;
-        float z;
 
-        do
-        {
-            x = Random.Range(-spawnRadius, spawnRadius);
-            z = Random.Range(-spawnRadius, spawnRadius);
-        }
-        while (!IsInsideHex(x, z));
-
-        return transform.position + new Vector3(x, 0f, z);
-    }
-
-    private bool IsInsideHex(float x, float z)
-    {
-        float absoluteX = Mathf.Abs(x);
-        float absoluteZ = Mathf.Abs(z);
-
-        return absoluteX <= spawnRadius &&
-               absoluteZ <= Mathf.Sqrt(3f) * spawnRadius / 2f &&
-               Mathf.Sqrt(3f) * absoluteX + absoluteZ
-                   <= Mathf.Sqrt(3f) * spawnRadius;
-    }
 }

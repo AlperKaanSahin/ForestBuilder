@@ -17,6 +17,14 @@ public class UpgradeZone : MonoBehaviour
         zoneCollider = GetComponent<BoxCollider>();
     }
 
+    public void Initialize(
+    Transform player,
+    GameObject upgradePanel)
+    {
+        this.player = player;
+        this.upgradePanel = upgradePanel;
+    }
+
     private void Update()
     {
         if (player == null)
