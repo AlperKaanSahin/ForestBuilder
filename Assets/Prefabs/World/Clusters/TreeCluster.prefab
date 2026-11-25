@@ -68,7 +68,7 @@ GameObject:
   - component: {fileID: 6279151854172492598}
   - component: {fileID: 729669830499964064}
   m_Layer: 0
-  m_Name: ForestCluster
+  m_Name: TreeCluster
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

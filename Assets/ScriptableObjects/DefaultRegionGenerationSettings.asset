@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8c8700159e7b6c48a631a28e2de6f1c, type: 3}
+  m_Name: DefaultRegionGenerationSettings
+  m_EditorClassIdentifier: Assembly-CSharp::RegionGenerationSettings
+  biomes:
+  - {fileID: 11400000, guid: bc7482fb14269a6448185ec66d2059df, type: 2}
+  - {fileID: 11400000, guid: 440c83fc6dc6d4b4d84f2eef449c47ff, type: 2}
+  - {fileID: 11400000, guid: d0a2eb73ba354c4479ef8fab94e1f2ec, type: 2}
+  features:
+  - {fileID: 11400000, guid: 00d4c9c336748be4d8c499c714cbe890, type: 2}
+  - {fileID: 11400000, guid: 6269ab342f4aa58418689410074d9262, type: 2}
+  - {fileID: 11400000, guid: 56eb173041d8a9c4787bc0a7ff2048b6, type: 2}

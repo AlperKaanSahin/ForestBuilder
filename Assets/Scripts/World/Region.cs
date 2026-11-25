@@ -3,10 +3,20 @@ using UnityEngine;
 public class Region : MonoBehaviour
 {
     [Header("Region Shape")]
-    [SerializeField] private float radius = 20f;
+    [SerializeField] private float radius = 30f;
 
     [Header("Debug")]
     [SerializeField] private float debugEdgeMargin = 5f;
+
+    [Header("Grid")]
+    [SerializeField] private HexCoordinates coordinates;
+
+    [Header("Generated Data")]
+    [SerializeField] private RegionData data;
+
+    public RegionData Data => data;
+
+    public HexCoordinates Coordinates => coordinates;
 
     public float Radius => radius;
     public Vector3 Center => transform.position;
@@ -101,6 +111,16 @@ public class Region : MonoBehaviour
         return false;
     }
 
+    public bool CanFitCircle(Vector3 worldPosition, float circleRadius)
+    {
+        float usableRadius =
+    radius - circleRadius / Mathf.Cos(30f * Mathf.Deg2Rad);
+
+        if (usableRadius <= 0f)
+            return false;
+
+        return ContainsPoint(worldPosition, usableRadius);
+    }
     private void OnDrawGizmosSelected()
     {
         DrawHex(radius, Color.yellow);
@@ -108,5 +128,25 @@ public class Region : MonoBehaviour
 
         Gizmos.color = Color.green;
         Gizmos.DrawSphere(Center, 0.4f);
+    }
+    public void Initialize(
+    HexCoordinates newCoordinates,
+    RegionData newData)
+    {
+        coordinates = newCoordinates;
+        data = newData;
+
+        UpdateWorldPosition();
+    }
+    public void UpdateWorldPosition()
+    {
+        transform.position = HexGridUtility.CoordinatesToWorldPosition(
+            coordinates,
+            radius
+        );
+    }
+    private void OnValidate()
+    {
+        UpdateWorldPosition();
     }
 }

@@ -54,4 +54,8 @@ public class SellCoinEffect : MonoBehaviour
 
         Destroy(coin);
     }
+    public void Initialize(Transform player)
+    {
+        this.player = player;
+    }
 }

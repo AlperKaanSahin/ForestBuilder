@@ -7,7 +7,6 @@ public class RegionGenerator : MonoBehaviour
     [SerializeField] private Region region;
 
     [Header("Cluster Generation")]
-    [SerializeField] private ClusterDefinition[] clusterDefinitions;
     [SerializeField] private Transform clusterParent;
 
 
@@ -21,20 +20,20 @@ public class RegionGenerator : MonoBehaviour
     private readonly List<ResourceCluster> placedClusters =
     new List<ResourceCluster>();
 
-    private void Start()
+    public void Generate()
     {
         GenerateClusters();
     }
 
     private void GenerateClusters()
     {
-        if (region == null || clusterDefinitions == null)
+        if (region == null || region.Data == null || region.Data.Biome == null)
         {
-            Debug.LogWarning("RegionGenerator references are missing.");
+            Debug.LogWarning("RegionGenerator region data is missing.");
             return;
         }
 
-        foreach (ClusterDefinition definition in clusterDefinitions)
+        foreach (ClusterDefinition definition in region.Data.Biome.ClusterDefinitions)
         {
             if (definition == null || definition.Prefab == null)
                 continue;
@@ -73,6 +72,9 @@ public class RegionGenerator : MonoBehaviour
             {
                 continue;
             }
+
+            if (!region.CanFitCircle(position, cluster.Radius))
+                continue;
 
             if (OverlapsReservedArea(position, cluster.Radius))
                 continue;
