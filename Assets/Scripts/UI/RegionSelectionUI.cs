@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class RegionSelectionUI : MonoBehaviour
 {
     [Serializable]
-
     private class CandidateCard
     {
         public TMP_Text biomeText;
@@ -17,15 +16,19 @@ public class RegionSelectionUI : MonoBehaviour
     }
 
     [Header("References")]
-    [SerializeField] private RegionCandidateGenerator candidateGenerator;
     [SerializeField] private GameObject selectionPanel;
     [SerializeField] private Button closeButton;
-    [SerializeField] private RegionFactory regionFactory;
+    [SerializeField] private ExpansionSystem expansionSystem;
+    [SerializeField] private TMP_Text costText;
+    [SerializeField] private RerollSystem rerollSystem;
+    [SerializeField] private Button rerollButton;
+    [SerializeField] private TMP_Text rerollButtonText;
+
 
     [Header("Candidate Cards")]
     [SerializeField] private CandidateCard[] cards = new CandidateCard[3];
 
-    private List<RegionData> currentCandidates;
+    private IReadOnlyList<RegionData> currentCandidates;
     private ExpansionPoint currentPoint;
 
     private void Awake()
@@ -37,10 +40,13 @@ public class RegionSelectionUI : MonoBehaviour
         for (int i = 0; i < cards.Length; i++)
         {
             int index = i;
+
             cards[i].selectButton.onClick.AddListener(
                 () => SelectCandidate(index)
             );
         }
+        rerollButton.onClick.AddListener(OnRerollClicked);
+        rerollSystem.RerollsChanged += OnRerollsChanged;
     }
 
     public void Open(ExpansionPoint point)
@@ -48,21 +54,31 @@ public class RegionSelectionUI : MonoBehaviour
         if (point == null || !point.IsAvailable)
             return;
 
-        currentPoint = point;
+        HexCoordinates target = point.GetTargetCoordinates();
 
-        int seed = UnityEngine.Random.Range(0, int.MaxValue);
+        RegionOffer offer = expansionSystem.GetOrCreateOffer(target);
 
-        currentCandidates = candidateGenerator.GenerateCandidates(
-            1,
-            seed
-        );
-
-        if (currentCandidates.Count == 0)
+        if (offer == null || offer.Candidates.Count == 0)
         {
-            Debug.LogWarning("No region candidates generated.");
+            Debug.LogWarning("No region offer available.");
             return;
         }
 
+        currentPoint = point;
+        currentCandidates = offer.Candidates;
+        RefreshCandidateCards();
+        RefreshRerollButton();
+
+
+
+        costText.text =
+            $"Expansion Cost: {expansionSystem.CurrentCost} Coins";
+
+        selectionPanel.SetActive(true);
+    }
+
+    private void RefreshCandidateCards()
+    {
         for (int i = 0; i < cards.Length; i++)
         {
             bool hasCandidate = i < currentCandidates.Count;
@@ -88,16 +104,15 @@ public class RegionSelectionUI : MonoBehaviour
 
             cards[i].tierText.text = $"Tier {candidate.Tier}";
         }
-
-        selectionPanel.SetActive(true);
     }
-
     private void SelectCandidate(int index)
     {
         if (currentCandidates == null ||
             index < 0 ||
             index >= currentCandidates.Count)
+        {
             return;
+        }
 
         if (currentPoint == null || !currentPoint.IsAvailable)
             return;
@@ -107,14 +122,14 @@ public class RegionSelectionUI : MonoBehaviour
         HexCoordinates target =
             currentPoint.GetTargetCoordinates();
 
-        Region newRegion = regionFactory.CreateRegion(
+        bool success = expansionSystem.TryExpand(
             target,
             selected
         );
 
-        if (newRegion == null)
+        if (!success)
         {
-            Debug.LogWarning("Region creation failed.");
+            Debug.LogWarning("Expansion purchase failed.");
             return;
         }
 
@@ -124,6 +139,35 @@ public class RegionSelectionUI : MonoBehaviour
         );
 
         Close();
+    }
+    private void OnRerollClicked()
+    {
+        if (currentPoint == null || !currentPoint.IsAvailable)
+            return;
+
+        HexCoordinates target = currentPoint.GetTargetCoordinates();
+
+        if (!expansionSystem.TryReroll(target))
+            return;
+
+        RegionOffer offer = expansionSystem.GetOrCreateOffer(target);
+
+        currentCandidates = offer.Candidates;
+
+        RefreshCandidateCards();
+    }
+
+    private void OnRerollsChanged(int amount)
+    {
+        RefreshRerollButton();
+    }
+
+    private void RefreshRerollButton()
+    {
+        int remaining = rerollSystem.AvailableRerolls;
+
+        rerollButtonText.text = $"REROLL ({remaining})";
+        rerollButton.interactable = remaining > 0;
     }
 
     public void CloseIfPoint(ExpansionPoint point)
@@ -137,7 +181,20 @@ public class RegionSelectionUI : MonoBehaviour
     public void Close()
     {
         selectionPanel.SetActive(false);
+
         currentPoint = null;
         currentCandidates = null;
+    }
+
+    private void OnDestroy()
+    {
+        if (closeButton != null)
+            closeButton.onClick.RemoveListener(Close);
+
+        if (rerollButton != null)
+            rerollButton.onClick.RemoveListener(OnRerollClicked);
+
+        if (rerollSystem != null)
+            rerollSystem.RerollsChanged -= OnRerollsChanged;
     }
 }
