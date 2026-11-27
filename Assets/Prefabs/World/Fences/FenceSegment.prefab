@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3788991009845476450}
-  - component: {fileID: 687887247650161999}
   m_Layer: 0
   m_Name: FenceSegment
   m_TagString: Untagged
@@ -33,18 +32,6 @@ Transform:
   - {fileID: 9127557916900721331}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &687887247650161999
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8421294782447309705}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0937be90c3b3afc40b15ab9871c80f4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FenceDebug
 --- !u!1001 &9127557916900603221
 PrefabInstance:
   m_ObjectHideFlags: 0

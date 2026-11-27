@@ -48,6 +48,23 @@ public abstract class RepeatableUpgrade : MonoBehaviour
         return true;
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public bool DebugLevelUp()
+    {
+        if (IsMaxLevel)
+            return false;
+
+        ApplyUpgrade();
+
+        currentLevel++;
+        currentCost = GetNextCost();
+
+        LevelChanged?.Invoke(currentLevel);
+
+        return true;
+    }
+#endif
+
     protected abstract void ApplyUpgrade();
 
     protected virtual int GetNextCost()
