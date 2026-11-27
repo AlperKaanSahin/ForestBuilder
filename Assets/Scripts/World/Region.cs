@@ -14,6 +14,7 @@ public class Region : MonoBehaviour
     [Header("Generated Data")]
     [SerializeField] private RegionData data;
 
+
     public RegionData Data => data;
 
     public HexCoordinates Coordinates => coordinates;
