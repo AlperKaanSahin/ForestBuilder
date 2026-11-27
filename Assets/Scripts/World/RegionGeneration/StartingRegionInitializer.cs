@@ -34,6 +34,13 @@ public class StartingRegionInitializer : MonoBehaviour
             Debug.LogError("Starting region registration failed.");
             return;
         }
+        RegionBoundary boundary =
+    region.GetComponentInChildren<RegionBoundary>(true);
+
+        if (boundary != null)
+        {
+            boundary.Initialize(region, regionManager);
+        }
 
         regionGenerator.Generate();
 

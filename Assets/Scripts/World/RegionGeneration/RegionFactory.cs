@@ -57,6 +57,13 @@ public class RegionFactory : MonoBehaviour
             Destroy(newRegion.gameObject);
             return null;
         }
+        RegionBoundary boundary =
+    newRegion.GetComponentInChildren<RegionBoundary>(true);
+
+        if (boundary != null)
+        {
+            boundary.Initialize(newRegion, regionManager);
+        }
 
         ExpansionPoint[] points =
             newRegion.GetComponentsInChildren<ExpansionPoint>(true);
